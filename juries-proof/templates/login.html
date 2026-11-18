@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in — JURIES PROOF</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <script>(function(){ try { var t = localStorage.getItem('jp-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch(e) {} })();</script>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="brand">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="JURIES PROOF logo" class="brand-logo" style="width:64px;height:64px;">
+      </div>
+      <h1 style="text-align:center;letter-spacing:.12em;font-size:1.3rem;">JURIES PROOF</h1>
+      <p class="login-tagline">Every legal claim. Every source. Every proof.</p>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+      <form method="post" action="{{ url_for('login') }}">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autofocus autocomplete="username">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password">
+        <div style="margin-top:1rem;">
+          <button type="submit" class="btn" style="width:100%;">Sign in</button>
+        </div>
+      </form>
+      <div class="hint">
+        <strong>Prototype accounts</strong> (change before any real deployment):
+        <br>admin / admin123 &middot; analyst / analyst123 &middot; leo / leo123456
+        <br>gov / gov123456 &middot; public / public123
+      </div>
+      <p style="text-align:center;margin-top:1rem;">
+        <button type="button" class="btn btn-ghost btn-sm" id="theme-toggle">◐ Theme</button>
+      </p>
+      <p class="meta" style="font-size:.72rem;color:var(--text-muted);text-align:center;">
+        PROTOTYPE • EVIDENCE-FIRST LEGAL INTELLIGENCE
+      </p>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

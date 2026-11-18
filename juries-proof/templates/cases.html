@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Cases — JURIES PROOF{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs">JURIES PROOF / Cases</div>
+    <h1>Cases</h1>
+  </div>
+</div>
+
+{% if current_user.role in ['admin','analyst','law_enforcement'] %}
+<div class="card">
+  <h3>Create Case</h3>
+  <form method="post" action="{{ url_for('create_case') }}">
+    <div class="form-row">
+      <div><label for="title">Case Title *</label><input type="text" id="title" name="title" required placeholder="e.g. Commercial dispute — supply agreement"></div>
+      <div><label for="case_type">Case Type</label>
+        <select id="case_type" name="case_type">
+          <option value="">—</option>
+          <option>Civil</option><option>Criminal</option><option>Commercial / Contract</option>
+          <option>Family</option><option>Property</option><option>Employment</option><option>Other</option>
+        </select></div>
+      <div><label for="jurisdiction">Jurisdiction</label><input type="text" id="jurisdiction" name="jurisdiction" placeholder="e.g. Karnataka, India"></div>
+    </div>
+    <label for="description">Description</label>
+    <textarea id="description" name="description" placeholder="Brief description of the matter"></textarea>
+    <div class="form-row">
+      <div><label for="parties">Parties / Entities</label><input type="text" id="parties" name="parties" placeholder="Party A vs Party B"></div>
+      <div><label for="tags">Tags</label><input type="text" id="tags" name="tags" placeholder="comma separated"></div>
+    </div>
+    <div style="margin-top:.8rem;"><button type="submit" class="btn">Create Case</button></div>
+  </form>
+</div>
+{% endif %}
+
+<div class="card">
+  <h3>All Cases</h3>
+  {% if cases %}
+  <div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Case ID</th><th>Title</th><th>Type</th><th>Jurisdiction</th><th>Status</th><th>Documents</th><th>Created</th><th></th></tr></thead>
+    <tbody>
+      {% for c in cases %}
+      <tr>
+        <td class="mono">{{ c.id }}</td>
+        <td><a href="{{ url_for('case_detail', case_id=c.id) }}">{{ c.title }}</a></td>
+        <td>{{ c.case_type or '—' }}</td>
+        <td>{{ c.jurisdiction or '—' }}</td>
+        <td><span class="badge badge-{{ 'ready' if c.status=='Open' else 'neutral' }}">{{ c.status }}</span></td>
+        <td>{{ c.docs }}</td>
+        <td class="meta">{{ c.created_at[:10] }}</td>
+        <td><a class="btn btn-sm btn-secondary" href="{{ url_for('case_detail', case_id=c.id) }}">Open</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p>No cases yet. Create a case and upload a PDF to begin.</p>
+  {% endif %}
+</div>
+{% endblock %}

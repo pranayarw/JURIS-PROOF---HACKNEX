@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Public Legal Help — JURIES PROOF{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs">JURIES PROOF / Public Legal Help</div>
+    <h1>Public Legal Help</h1>
+    <div class="alert alert-warning">This information is general guidance and does not constitute legal advice.</div>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>How to organize evidence</h3>
+    <ul>
+      <li>Keep originals safe; work with copies, never markings on originals.</li>
+      <li>Note for each document: what it is, who gave it, when, and where it came from.</li>
+      <li>Create a dated chronological file of events with supporting documents.</li>
+      <li>Record how each item was obtained so its chain of custody can be explained.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>What documents to preserve</h3>
+    <ul>
+      <li>Written agreements, notices, letters, emails and messages (with headers/metadata).</li>
+      <li>Receipts, invoices, bank statements and transaction records.</li>
+      <li>Identity/address proofs relevant to the parties involved.</li>
+      <li>Photographs, call logs and recordings, noted with date, time and source.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>How to prepare before contacting a lawyer</h3>
+    <ul>
+      <li>Write a short timeline: dates, events, people involved, amounts.</li>
+      <li>Gather the documents listed above in one organized folder.</li>
+      <li>Note precisely what you want to achieve (refund, protection, complaint).</li>
+      <li>List questions you need answered; bring copies, keep originals.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Official legal resources (verified)</h3>
+    <table class="data">
+      <tbody>
+        {% for r in resources %}
+        <tr><td><strong>{{ r.name }}</strong><div class="meta">{{ r.desc }}</div></td>
+            <td><a href="{{ r.url }}" target="_blank" rel="noopener noreferrer">Visit ↗</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="meta">Only verified/configured official resources are listed. No helpline numbers are invented by this system.</p>
+  </div>
+</div>
+{% endblock %}

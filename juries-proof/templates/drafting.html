@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Legal Drafting — {{ case.title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('cases_page') }}">Cases</a> /
+      <a href="{{ url_for('case_detail', case_id=case.id) }}">{{ case.title }}</a> / Legal Drafting</div>
+    <h1>Legal Drafting</h1>
+    <p class="meta">Drafts contain only VERIFIED case facts; every gap is marked [INFORMATION REQUIRED]. Nothing is invented.</p>
+  </div>
+  <a class="btn btn-secondary" href="{{ url_for('case_detail', case_id=case.id) }}">← Back to case</a>
+</div>
+
+{% if current_user.role in ['admin','analyst','law_enforcement'] %}
+<div class="card">
+  <h3>Generate a draft</h3>
+  <form method="post">
+    <label for="kind">Draft type</label>
+    <select id="kind" name="kind">
+      {% for k, label in kinds.items() %}<option value="{{ k }}">{{ label }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn" style="margin-top:.6rem;">Generate Draft</button>
+  </form>
+  <p class="meta" style="margin-top:.5rem;">Verified facts available: {{ facts|length }}.
+    {% if not facts %}No verified facts yet — ask evidence questions first; drafts will show [INFORMATION REQUIRED].{% endif %}</p>
+</div>
+{% endif %}
+
+{% if draft %}
+<div class="card">
+  <h3>{{ draft.title }} <span class="badge badge-review">Draft</span></h3>
+  <div class="evidence-box" style="white-space:pre-wrap;">{{ draft.content }}</div>
+  <p class="meta">{{ draft.verification_note }}</p>
+</div>
+{% endif %}
+
+<div class="card">
+  <h3>Saved drafts</h3>
+  {% if drafts %}
+  <table class="data">
+    <thead><tr><th>Title</th><th>Type</th><th>Created</th><th></th></tr></thead>
+    <tbody>
+      {% for d in drafts %}
+      <tr><td>{{ d.title }}</td><td class="meta">{{ d.kind }}</td><td class="meta">{{ d.created_at[:16].replace('T',' ') }}</td>
+        <td><details><summary style="cursor:pointer;color:var(--accent);font-size:.8rem;">View</summary>
+          <div class="evidence-box" style="white-space:pre-wrap;margin-top:.5rem;">{{ d.content }}</div></details></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="meta">No drafts yet.</p>{% endif %}
+</div>
+{% endblock %}

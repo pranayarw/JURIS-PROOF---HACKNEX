@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Error — JURIES PROOF{% endblock %}
+{% block content %}
+<div class="card" style="text-align:center;padding:3rem;">
+  <img src="{{ url_for('static', filename='img/logo.png') }}" alt="JURIES PROOF logo" style="width:72px;height:72px;">
+  <h1 style="margin-top:.8rem;">{{ code }}</h1>
+  <p>{{ message }}</p>
+  <a class="btn" href="{{ url_for('dashboard') if session.get('uid') else url_for('login') }}">Go back</a>
+</div>
+{% endblock %}

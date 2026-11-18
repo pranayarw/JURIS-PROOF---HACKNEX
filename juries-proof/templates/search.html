@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Search — JURIES PROOF{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs">JURIES PROOF / Search</div>
+    <h1>Search Evidence</h1>
+    <p class="meta">Search extracts from all cases (case-aware), or scope to a single case.</p>
+  </div>
+</div>
+
+<div class="card">
+  <form method="get" action="{{ url_for('global_search') }}">
+    <div class="form-row">
+      <div><label for="q">Query</label><input type="search" id="q" name="q" value="{{ q }}" placeholder="e.g. payment amount penalty notice"></div>
+      <div><label for="case">Scope</label>
+        <select id="case" name="case">
+          <option value="">All cases</option>
+          {% for c in cases %}<option value="{{ c.id }}" {{ 'selected' if case_filter==c.id }}>{{ c.id }} — {{ c.title }}</option>{% endfor %}
+        </select></div>
+    </div>
+    <button type="submit" class="btn" style="margin-top:.7rem;">Search</button>
+  </form>
+</div>
+
+{% if q %}
+<div class="card">
+  <h3>Results</h3>
+  {% if results %}
+  <p class="meta">{{ results|length }} result(s).</p>
+  <table class="data">
+    <thead><tr><th>Case</th><th>Document</th><th>Page</th><th>Section</th><th>Matched Evidence</th><th></th></tr></thead>
+    <tbody>
+      {% for r in results %}
+      <tr>
+        <td class="mono">{{ r.case_id }}</td>
+        <td>{{ r.doc_name }}</td>
+        <td>{{ r.page_number }}</td>
+        <td class="meta">{{ r.section or '—' }}</td>
+        <td class="meta">{{ r.text[:220] }}</td>
+        <td><a class="btn btn-sm btn-secondary" href="{{ url_for('document_viewer', doc_id=r.document_id, page=r.page_number) }}">Open page</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No matching evidence. Note: retrieval is scoped per case to prevent cross-case mixing; results always show which case they belong to.</p>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Evidence Center — {{ case.title }}{% endblock %}
+{% block scripts %}
+<style>
+  #evidence-graph .g-case { fill: var(--accent); }
+  #evidence-graph .g-claim { fill: var(--surface); stroke: var(--border); }
+  #evidence-graph .g-doc { fill: var(--accent-soft); stroke: var(--accent); }
+  #evidence-graph .g-page { fill: var(--gray-bg); stroke: var(--border); }
+  #evidence-graph text { fill: var(--text); font-family: "Segoe UI", sans-serif; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('cases_page') }}">Cases</a> /
+      <a href="{{ url_for('case_detail', case_id=case.id) }}">{{ case.title }}</a> / Evidence Center</div>
+    <h1>Evidence Center</h1>
+    <p class="meta">All nodes/values generated from actual uploaded documents.</p>
+  </div>
+  <a class="btn btn-secondary" href="{{ url_for('case_detail', case_id=case.id) }}">← Back to case</a>
+</div>
+
+<div class="card">
+  <h3>Evidence Graph</h3>
+  <p class="meta">Case → Claim → Document → Page. Hover nodes for details.</p>
+  <div class="graph-wrap">
+    <svg id="evidence-graph" data-case-id="{{ case.id }}" width="100%" height="420" role="img" aria-label="Evidence graph"></svg>
+  </div>
+  <div class="legend">
+    <span style="color:var(--accent);">Case</span>
+    <span>Claim</span>
+    <span style="color:var(--accent);">Document</span>
+    <span>Page</span>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Evidence Coverage</h3>
+    {% if coverage.coverage is not none %}
+      <div class="stat-value" style="font-size:2rem;color:var(--accent);">{{ coverage.coverage }}%</div>
+      <table class="data" style="margin-top:.6rem;">
+        <tbody>
+          <tr><td><span class="badge badge-verified">Verified</span></td><td>{{ coverage.counts.VERIFIED }}</td></tr>
+          <tr><td><span class="badge badge-partially">Partially Supported</span></td><td>{{ coverage.counts['PARTIALLY SUPPORTED'] }}</td></tr>
+          <tr><td><span class="badge badge-review">Unsupported</span></td><td>{{ coverage.counts.UNSUPPORTED }}</td></tr>
+          <tr><td><span class="badge badge-contradicted">Contradicted</span></td><td>{{ coverage.counts.CONTRADICTED }}</td></tr>
+          <tr><td><span class="badge badge-insufficient">Insufficient Evidence</span></td><td>{{ coverage.counts['INSUFFICIENT EVIDENCE'] }}</td></tr>
+          <tr><th>Total factual claims</th><td>{{ coverage.total_claims }}</td></tr>
+        </tbody>
+      </table>
+    {% else %}
+      <p><em>{{ coverage.message }}</em></p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h3>Source Quality</h3>
+    {% if quality %}
+    <table class="data">
+      <thead><tr><th>Source</th><th>Type</th><th>Authority</th><th>Reliability</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for q in quality %}
+        <tr>
+          <td>{{ q.document.doc_name }}</td>
+          <td class="meta">{{ q.source_type }}</td>
+          <td><span class="badge badge-{{ {'HIGH':'verified','MEDIUM':'partially','LOW':'contradicted'}.get(q.authority,'neutral') }}">{{ q.authority }}</span></td>
+          <td class="meta">{{ q.reliability }}</td>
+          <td><span class="badge badge-{{ q.status|lower }}">{{ q.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="meta">No documents yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <h3>Claims (with Why?)</h3>
+  {% if claims %}
+    {% for c in claims[:20] %}
+    <div class="claim-item">
+      <div class="claim-head"><span>{{ c.text }}</span>
+        <span class="badge badge-{{ {'VERIFIED':'verified','PARTIALLY SUPPORTED':'partially','UNSUPPORTED':'unsupported','CONTRADICTED':'contradicted'}.get(c.status,'insufficient') }}">{{ c.status }}</span></div>
+      {% if c.excerpt %}
+      <details class="why"><summary>Why?</summary>
+        <div class="evidence-box">{{ c.excerpt }}
+          <div class="src">Claim: {{ c.text[:120] }}<br>
+            Source: {{ c.doc_name or '—' }}{% if c.page_number %} — Page {{ c.page_number }}{% endif %}
+            {% if c.section %} — Section: {{ c.section }}{% endif %}<br>
+            Verification: {{ c.status }}</div>
+        </div>
+      </details>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="meta">No claims yet. Ask evidence questions or run a review.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3>Citation Verification</h3>
+  <p class="meta">A citation is valid only if its excerpt actually occurs on the stored page of the real PDF.</p>
+  {% if citations %}
+  <div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Claim</th><th>Document</th><th>Page</th><th>Section</th><th>Evidence excerpt</th><th>Citation Status</th></tr></thead>
+    <tbody>
+      {% for ci in citations %}
+      <tr>
+        <td>{{ ci.claim_text[:120] }}</td>
+        <td>{% if ci.document_id %}<a href="{{ url_for('document_viewer', doc_id=ci.document_id, page=ci.page_number) }}">{{ ci.doc_name }}</a>{% else %}—{% endif %}</td>
+        <td>{{ ci.page_number or '—' }}</td>
+        <td class="meta">{{ ci.section or '—' }}</td>
+        <td class="meta">{{ ci.excerpt[:150] }}</td>
+        <td><span class="badge badge-{{ 'verified' if ci.valid else 'contradicted' }}">{{ ci.status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="meta">No citations recorded yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

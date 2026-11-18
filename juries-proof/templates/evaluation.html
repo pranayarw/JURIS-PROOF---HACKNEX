@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Evaluation — JURIES PROOF{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs">JURIES PROOF / Evaluation</div>
+    <h1>Evaluation</h1>
+    <p class="meta">Runs retrieval tests against a case's REAL uploaded documents. Scores are computed from actual tests only — never fabricated. Includes a deliberate refusal test: the system must answer INSUFFICIENT EVIDENCE for unanswerable questions.</p>
+  </div>
+</div>
+
+<div class="card">
+  <form method="post">
+    <label for="case_id">Select case</label>
+    <select id="case_id" name="case_id" required>
+      {% for c in cases %}<option value="{{ c.id }}">{{ c.id }} — {{ c.title }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn" style="margin-top:.6rem;">Run Evaluation</button>
+  </form>
+</div>
+
+{% if run %}
+{% if run.error %}
+<div class="card">{{ run.error }}</div>
+{% else %}
+<div class="grid grid-4">
+  <div class="card stat"><div class="stat-value">{{ run.groundedness }}%</div><div class="stat-label">Groundedness</div></div>
+  <div class="card stat"><div class="stat-value">{{ run.citation_accuracy }}%</div><div class="stat-label">Citation Accuracy</div></div>
+  <div class="card stat"><div class="stat-value">{{ run.fabricated_facts }}</div><div class="stat-label">Fabricated Facts</div></div>
+  <div class="card stat"><div class="stat-value">{{ run.fabricated_citations }}</div><div class="stat-label">Fabricated Citations</div></div>
+</div>
+<div class="card">
+  <h3>Test results</h3>
+  <div class="table-wrap">
+  <table class="data">
+    <thead><tr><th>Test</th><th>Expected Evidence</th><th>Evidence Found</th><th>Citation Accuracy</th></tr></thead>
+    <tbody>
+      {% for t in run.tests %}
+      <tr>
+        <td class="meta">{{ t.question[:160] }}</td>
+        <td>{{ t.expected_evidence }}</td>
+        <td><span class="badge badge-{{ 'verified' if t.evidence_found else 'contradicted' }}">{{ 'PASS' if t.evidence_found else 'FAIL' }}</span></td>
+        <td><span class="badge badge-{{ 'verified' if t.citation_accuracy else 'contradicted' }}">{{ 'PASS' if t.citation_accuracy else 'FAIL' }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endif %}
+{% else %}
+<div class="card"><p class="meta">No evaluation run in this session yet. Select a case with processed documents.</p></div>
+{% endif %}
+{% endblock %}

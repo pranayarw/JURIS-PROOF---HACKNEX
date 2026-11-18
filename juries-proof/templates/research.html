@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Legal Research — {{ case.title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('cases_page') }}">Cases</a> /
+      <a href="{{ url_for('case_detail', case_id=case.id) }}">{{ case.title }}</a> / Legal Research</div>
+    <h1>Legal Research</h1>
+    <p class="meta">Case-grounded analysis; external authorities only when a verified source is configured. No laws, sections or judgments are ever fabricated.</p>
+  </div>
+  <a class="btn btn-secondary" href="{{ url_for('case_detail', case_id=case.id) }}">← Back to case</a>
+</div>
+
+<div class="card">
+  <form method="post">
+    <label for="question">Research question</label>
+    <input type="text" id="question" name="question" required
+           placeholder="e.g. What are the termination rights referenced in the case documents?">
+    <button type="submit" class="btn" style="margin-top:.6rem;">Run Research</button>
+  </form>
+</div>
+
+{% if result %}
+<div class="card">
+  <h3>Result</h3>
+  <p><span class="badge badge-{{ 'verified' if result.status=='CASE-GROUNDED' else 'insufficient' }}">{{ result.status }}</span></p>
+  <p class="meta"><strong>Question:</strong> {{ result.question }}</p>
+  {% if result.case_summary %}
+    <h4>Relevant case evidence (real, page-sourced)</h4>
+    {% for s in result.case_summary %}
+    <div class="evidence-box">{{ s.text }}<div class="src">{{ s.doc }} — Page {{ s.page }}</div></div>
+    {% endfor %}
+  {% else %}
+    <div class="refusal">
+      <h3>Insufficient Evidence</h3>
+      <p>The available documents do not provide sufficient evidence for this research question.</p>
+    </div>
+  {% endif %}
+  <h4>External legal sources</h4>
+  {% if result.external_sources %}
+    {# Only verified configured sources would appear here #}
+  {% else %}
+    <p class="meta">RESEARCH SOURCE UNAVAILABLE — {{ result.external_note }}</p>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="card">
+  <h3>Recent research queries</h3>
+  {% if history %}
+  <table class="data">
+    <thead><tr><th>Question</th><th>Result</th><th>When</th></tr></thead>
+    <tbody>
+      {% for r in history %}
+      <tr><td>{{ r.question }}</td><td class="meta">{{ r.answer }}</td><td class="meta">{{ r.created_at[:16].replace('T',' ') }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="meta">No research queries yet.</p>{% endif %}
+</div>
+{% endblock %}

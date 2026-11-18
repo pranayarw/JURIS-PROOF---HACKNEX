@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Case Report — {{ case.title }}{% endblock %}
+{% block content %}
+<div class="page-head no-print">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('cases_page') }}">Cases</a> /
+      <a href="{{ url_for('case_detail', case_id=case.id) }}">{{ case.title }}</a> / Report</div>
+    <h1>Case Report</h1>
+    <p class="meta">Generated from real case data. Use your browser's Print dialog for PDF/print-friendly output.</p>
+  </div>
+  <a class="btn btn-secondary no-print" href="{{ url_for('case_detail', case_id=case.id) }}">← Back to case</a>
+</div>
+
+{% if review and review.error %}
+  <div class="card">{{ review.error }}</div>
+{% else %}
+<div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem;">
+  <img src="{{ url_for('static', filename='img/logo.png') }}" alt="JURIES PROOF logo" style="width:48px;height:48px;">
+  <div>
+    <h2 style="letter-spacing:.1em;">JURIES PROOF — CASE REPORT</h2>
+    <p class="meta">Every legal claim. Every source. Every proof.</p>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Case</h3>
+  <table class="data"><tbody>
+    <tr><th style="width:150px;">Case ID</th><td class="mono">{{ case.id }}</td></tr>
+    <tr><th>Title</th><td>{{ case.title }}</td></tr>
+    <tr><th>Type</th><td>{{ case.case_type or '—' }}</td></tr>
+    <tr><th>Jurisdiction</th><td>{{ case.jurisdiction or '—' }}</td></tr>
+    <tr><th>Parties</th><td>{{ case.parties or '—' }}</td></tr>
+    <tr><th>Status</th><td>{{ case.status }}</td></tr>
+  </tbody></table>
+</div>
+
+{% if review %}
+<div class="card"><h3>Case Summary</h3><p>{{ review.summary }}</p></div>
+
+<div class="card"><h3>Key Facts (sourced)</h3>
+  {% for f in review.key_facts[:15] %}
+  <div class="evidence-box">{{ f.text }}<div class="src">{{ f.doc_name }} — Page {{ f.page }}</div></div>
+  {% else %}<p class="meta">None established.</p>{% endfor %}
+</div>
+
+<div class="card"><h3>Important Clauses</h3>
+  {% if review.clauses %}
+  <table class="data"><thead><tr><th>Document</th><th>Page</th><th>Section</th><th>Passage</th></tr></thead><tbody>
+    {% for c in review.clauses[:10] %}<tr><td>{{ c.doc_name }}</td><td>{{ c.page }}</td><td class="meta">{{ c.section or '—' }}</td><td>{{ c.text[:220] }}</td></tr>{% endfor %}
+  </tbody></table>
+  {% else %}<p class="meta">None detected.</p>{% endif %}
+</div>
+
+<div class="card"><h3>Evidence Coverage</h3>
+  {% if review.coverage.coverage is not none %}
+  <p><strong>{{ review.coverage.coverage }}%</strong> ({{ review.coverage.counts.VERIFIED }} of {{ review.coverage.total_claims }} claims verified)</p>
+  <table class="data"><tbody>
+    <tr><td><span class="badge badge-verified">Verified</span></td><td>{{ review.coverage.counts.VERIFIED }}</td></tr>
+    <tr><td><span class="badge badge-partially">Partially Supported</span></td><td>{{ review.coverage.counts['PARTIALLY SUPPORTED'] }}</td></tr>
+    <tr><td><span class="badge badge-review">Unsupported</span></td><td>{{ review.coverage.counts.UNSUPPORTED }}</td></tr>
+    <tr><td><span class="badge badge-contradicted">Contradicted</span></td><td>{{ review.coverage.counts.CONTRADICTED }}</td></tr>
+    <tr><td><span class="badge badge-insufficient">Insufficient Evidence</span></td><td>{{ review.coverage.counts['INSUFFICIENT EVIDENCE'] }}</td></tr>
+  </tbody></table>
+  {% else %}<p><em>{{ review.coverage.message }}</em></p>{% endif %}
+</div>
+
+<div class="card"><h3>Contradictions</h3>
+  {% if review.contradictions %}
+    {% for c in review.contradictions %}
+    <div class="evidence-box"><strong>Contradiction Detected</strong> ({{ c.kind }})<br>
+      Claim A: {{ c.claim_a }} <span class="src">— {{ c.doc_a }}, page {{ c.page_a }}</span><br>
+      Claim B: {{ c.claim_b }} <span class="src">— {{ c.doc_b }}, page {{ c.page_b }}</span></div>
+    {% endfor %}
+  {% else %}<p class="meta">None detected.</p>{% endif %}
+</div>
+
+<div class="card"><h3>Missing Information</h3>
+  {% if review.missing %}
+    <ul>{% for m in review.missing %}<li><strong>{{ m.item }}</strong> — {{ m.reason }}</li>{% endfor %}</ul>
+  {% else %}<p class="meta">None identified.</p>{% endif %}
+</div>
+{% endif %}
+
+<div class="card"><h3>Timeline</h3>
+  {% if events %}
+  <table class="data"><thead><tr><th>Date</th><th>Event</th><th>Source</th></tr></thead><tbody>
+    {% for e in events %}<tr><td class="mono">{{ e.event_date }}</td><td>{{ e.description }}</td><td class="meta">{{ e.doc_name }} — Page {{ e.page_number }}</td></tr>{% endfor %}
+  </tbody></table>
+  {% else %}<p class="meta">No dated events established by the documents.</p>{% endif %}
+</div>
+
+<div class="card"><h3>Legal Research (recent)</h3>
+  {% if research %}
+  <table class="data"><tbody>
+    {% for r in research %}<tr><td>{{ r.question }}</td><td class="meta">{{ r.answer }}</td></tr>{% endfor %}
+  </tbody></table>
+  {% else %}<p class="meta">None.</p>{% endif %}
+</div>
+
+<div class="card"><h3>Drafts (recent)</h3>
+  {% if drafts %}
+  <table class="data"><tbody>
+    {% for d in drafts %}<tr><td>{{ d.title }}</td><td class="meta">{{ d.created_at[:10] }}</td></tr>{% endfor %}
+  </tbody></table>
+  {% else %}<p class="meta">None.</p>{% endif %}
+</div>
+
+<div class="footer">
+  <p><strong>Disclaimer:</strong> This report was generated from uploaded documents by the JURIES PROOF prototype for evidence organization and analysis. It does not provide legal advice and should not be relied upon as a substitute for professional legal judgment or official legal authorities.</p>
+</div>
+{% endif %}
+{% endblock %}

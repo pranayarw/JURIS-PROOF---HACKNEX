@@ -1,0 +1,91 @@
+warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.
+JURIES PROOF - Evidence-First Legal Intelligence
+Starting on http://127.0.0.1:5000
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+ * Restarting with stat
+warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.
+ * Debugger is active!
+ * Debugger PIN: 931-411-443
+C:\Users\Pranay T G\Documents\CYBER SECURITY SEM 5\MOBILE FORENSICS AND SECURITY\project\juries-proof\app.py:75: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return dict(now=datetime.utcnow(), current_user=user,
+127.0.0.1 - - [09/Oct/2026 00:40:53] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:42:34] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:42:34] "GET /public-help HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:43:11] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:43:13] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:43:14] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:43:14] "GET /static/img/logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:43:14] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:43:16] "GET /static/img/favicon.png HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:44:27] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:44:27] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:44:27] "GET /static/img/logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:44:27] "GET /static/img/favicon.png HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 00:44:27] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:04:49] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:04:49] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:04:49] "GET /static/img/logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:04:49] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:04:49] "GET /static/img/favicon.png HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:05:13] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:05:13] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:05:13] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:05:13] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:05:25] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:05:25] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:05:26] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:05:26] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:03] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [09/Oct/2026 01:06:03] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:06:03] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:03] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:03] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:18] "GET /cases HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:06:18] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:18] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:18] "GET /static/js/main.js HTTP/1.1" 304 -
+C:\Users\Pranay T G\Documents\CYBER SECURITY SEM 5\MOBILE FORENSICS AND SECURITY\project\juries-proof\app.py:166: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  now = datetime.utcnow().isoformat()
+127.0.0.1 - - [09/Oct/2026 01:06:38] "POST /cases/create HTTP/1.1" 302 -
+127.0.0.1 - - [09/Oct/2026 01:06:38] "GET /cases/CASE-0002 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:06:38] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:38] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:38] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:43] "POST /cases/CASE-0002/analyze HTTP/1.1" 302 -
+127.0.0.1 - - [09/Oct/2026 01:06:43] "GET /cases/CASE-0002?tab=overview HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:06:43] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:43] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:43] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:51] "GET /cases/CASE-0002/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:06:51] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:51] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:51] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:06:51] "GET /api/evidence/graph/CASE-0002 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:07:05] "GET /search HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:07:06] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:06] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:06] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:11] "GET /search?q=john+wick&case= HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:07:11] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:11] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:11] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:13] "GET /evaluation HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:07:14] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:14] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:14] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:14] "POST /evaluation HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:07:15] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:15] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:15] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:16] "GET /public-help HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 01:07:16] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:16] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 01:07:16] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 06:24:13] "GET /public-help HTTP/1.1" 200 -
+127.0.0.1 - - [09/Oct/2026 06:24:13] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 06:24:13] "GET /static/img/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [09/Oct/2026 06:24:13] "GET /static/js/main.js HTTP/1.1" 304 -

@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{% block title %}{{ case.title }} — JURIES PROOF{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumbs"><a href="{{ url_for('cases_page') }}">Cases</a> / {{ case.id }}</div>
+    <h1>{{ case.title }}</h1>
+    <p class="meta"><span class="mono">{{ case.id }}</span> &middot;
+      <span class="badge badge-{{ 'ready' if case.status=='Open' else 'neutral' }}">{{ case.status }}</span>
+      &middot; {{ case.case_type or 'No type' }} &middot; {{ case.jurisdiction or 'No jurisdiction' }}
+      &middot; {{ documents|length }} document(s)
+    </p>
+  </div>
+  <div>
+    {% if current_user.role in ['admin','analyst','law_enforcement'] %}
+    <form method="post" action="{{ url_for('analyze_case', case_id=case.id) }}" class="inline">
+      <button type="submit" class="btn">Analyze Case</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid grid-4">
+  <div class="card stat"><div class="stat-value">{{ documents|length }}</div><div class="stat-label">Documents</div></div>
+  <div class="card stat"><div class="stat-value">{{ coverage.coverage if coverage.coverage is not none else '—' }}{{ '%' if coverage.coverage is not none else '' }}</div>
+    <div class="stat-label">Evidence Coverage{% if coverage.message %} <br><span style="text-transform:none;letter-spacing:0;">(not enough claims)</span>{% endif %}</div></div>
+  <div class="card stat"><div class="stat-value">{{ counts.contradictions }}</div><div class="stat-label">Contradictions</div></div>
+  <div class="card stat"><div class="stat-value">{{ counts.missing }}</div><div class="stat-label">Missing Information</div></div>
+</div>
+
+<div class="tabs">
+  {% set tabs = ['overview','documents','review','evidence','timeline','contradictions','missing','research','drafting','chat','report'] %}
+  {% for t in tabs %}
+  <a class="{{ 'active' if tab==t }}" href="{{ url_for('case_detail', case_id=case.id, tab=t) }}">{{ t|capitalize }}</a>
+  {% endfor %}
+</div>
+
+{% if tab == 'overview' %}
+  <div class="card">
+    <h3>Case Details</h3>
+    <table class="data">
+      <tbody>
+        <tr><th style="width:160px;">Description</th><td>{{ case.description or '—' }}</td></tr>
+        <tr><th>Parties / Entities</th><td>{{ case.parties or '—' }}</td></tr>
+        <tr><th>Tags</th><td>{{ case.tags or '—' }}</td></tr>
+        <tr><th>Created</th><td class="meta">{{ case.created_at[:19].replace('T',' ') }}</td></tr>
+        <tr><th>Claims evaluated</th><td>{{ counts.claims }} ({{ coverage.counts.VERIFIED }} verified, {{ coverage.counts.CONTRADICTED }} contradicted, {{ coverage.counts['INSUFFICIENT EVIDENCE'] }} insufficient)</td></tr>
+        <tr><th>Timeline events</th><td>{{ counts.events }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  {% if coverage.message %}<div class="card"><em>{{ coverage.message }}</em></div>{% endif %}
+  <div class="card">
+    <h3>Quick actions</h3>
+    <p>
+      {% if current_user.role != 'public' and current_user.role != 'government' %}
+      <a class="btn" href="{{ url_for('case_detail', case_id=case.id, tab='chat') }}">Ask Evidence Question</a>
+      {% endif %}
+      <a class="btn btn-secondary" href="{{ url_for('evidence_center', case_id=case.id) }}">View Evidence</a>
+      <a class="btn btn-secondary" href="{{ url_for('case_detail', case_id=case.id, tab='contradictions') }}">View Contradictions</a>
+      <a class="btn btn-secondary" href="{{ url_for('case_detail', case_id=case.id, tab='missing') }}">View Missing Information</a>
+      <a class="btn btn-secondary" href="{{ url_for('case_report', case_id=case.id) }}">Generate Report</a>
+    </p>
+  </div>
+
+{% elif tab == 'documents' %}
+  {% if current_user.role in ['admin','analyst','law_enforcement'] %}
+  <div class="card">
+    <h3>Upload Case Document (PDF)</h3>
+    <form method="post" action="{{ url_for('upload_document', case_id=case.id) }}" enctype="multipart/form-data">
+      <div class="dropzone">
+        <p><strong>Drag &amp; drop your PDF here</strong> or</p>
+        <input type="file" name="pdf" accept="application/pdf" required>
+        <button type="submit" class="btn" style="margin-top:.6rem;">Upload PDF</button>
+      </div>
+      <p class="meta" style="margin-top:.5rem;">Supported format: <strong>PDF</strong> (DOCX/TXT/CSV coming soon). Max {{ 50 }} MB.
+      Text is extracted locally with PyMuPDF. Scanned documents require OCR (not configured); the system will refuse to invent text.</p>
+    </form>
+  </div>
+  {% endif %}
+  <div class="card">
+    <h3>Documents</h3>
+    {% if documents %}
+    <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>Document Name</th><th>Pages</th><th>Size</th><th>Status</th><th>Uploaded</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+        {% for d in documents %}
+        <tr>
+          <td><a href="{{ url_for('document_viewer', doc_id=d.id) }}">{{ d.doc_name }}</a>
+            {% if d.processing_error %}<div class="meta" style="color:var(--bad);">{{ d.processing_error }}</div>{% endif %}</td>
+          <td>{{ d.page_count }}</td>
+          <td class="meta">{{ (d.file_size / 1024)|round(0) }} KB</td>
+          <td class="status-cell" data-status-url="{{ url_for('document_status', doc_id=d.id) }}" data-current="{{ d.processing_status }}">
+            <span class="badge badge-{{ d.processing_status }}">{{ d.processing_status|upper }}</span></td>
+          <td class="meta">{{ d.upload_date[:10] }}</td>
+          <td class="meta">{{ d.source_type }}</td>
+          <td>
+            {% if current_user.role in ['admin','analyst'] %}
+            <form method="post" action="{{ url_for('delete_document', doc_id=d.id) }}" class="inline"
+                  onsubmit="return confirm('Remove this document from the case?');">
+              <button type="submit" class="btn btn-sm btn-ghost">Remove</button>
+            </form>
+            {% endif %}
+            <a class="btn btn-sm btn-secondary" href="{{ url_for('document_viewer', doc_id=d.id) }}">Open</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+    <p>No documents have been uploaded to this case yet.</p>
+    {% endif %}
+  </div>
+
+{% elif tab == 'review' %}
+  {% if review %}
+    {% if review.error %}
+      <div class="card">{{ review.error }}</div>
+    {% else %}
+      <div class="card"><h3>Case Summary</h3><p>{{ review.summary }}</p></div>
+      <div class="card"><h3>Key Facts <span class="meta">(every fact has a page source)</span></h3>
+        {% if review.key_facts %}
+        <ul>{% for f in review.key_facts[:12] %}
+          <li class="evidence-box">{{ f.text }}<div class="src">{{ f.doc_name }} — Page {{ f.page }}</div></li>
+        {% endfor %}</ul>
+        {% else %}<p class="meta">No qualifying fact sentences found.</p>{% endif %}
+      </div>
+      <div class="card"><h3>Important Clauses</h3>
+        {% if review.clauses %}
+        <table class="data"><thead><tr><th>Document</th><th>Page</th><th>Section</th><th>Passage</th></tr></thead><tbody>
+          {% for c in review.clauses[:10] %}
+          <tr><td><a href="{{ url_for('document_viewer', doc_id=c.document_id, page=c.page) }}">{{ c.doc_name }}</a></td>
+              <td>{{ c.page }}</td><td class="meta">{{ c.section or '—' }}</td><td>{{ c.text[:250] }}</td></tr>
+          {% endfor %}
+        </tbody></table>
+        {% else %}<p class="meta">No obligation/clause passages detected.</p>{% endif %}
+      </div>
+      <div class="card"><h3>Risks</h3>
+        {% if review.risks %}
+        <ul>{% for r in review.risks[:10] %}
+          <li class="evidence-box">Risk signal: <strong>{{ r.matched }}</strong> — {{ r.text[:250] }}<div class="src">{{ r.doc_name }} — Page {{ r.page }}</div></li>
+        {% endfor %}</ul>
+        {% else %}<p class="meta">No risk-related passages detected.</p>{% endif %}
+      </div>
+      <div class="card"><h3>Contradictions</h3>
+        {% if review.contradictions %}
+          <ul>{% for c in review.contradictions %}<li>⚠ {{ c.claim_a[:120] }} ({{ c.doc_a }} p{{ c.page_a }}) <strong>vs</strong> {{ c.claim_b[:120] }} ({{ c.doc_b }} p{{ c.page_b }})</li>{% endfor %}</ul>
+        {% else %}<p class="meta">No contradictions detected.</p>{% endif %}
+      </div>
+      <div class="card"><h3>Missing Information</h3>
+        {% if review.missing %}
+          <ul>{% for m in review.missing %}<li><strong>{{ m.item }}</strong> — {{ m.reason }} <em>({{ m.recommended_action }})</em></li>{% endfor %}</ul>
+        {% else %}<p class="meta">No missing-information items identified.</p>{% endif %}
+      </div>
+      <div class="card"><h3>Source Documents</h3>
+        {% if review.documents %}
+        <table class="data"><tbody>
+          {% for d in review.documents %}<tr><td><a href="{{ url_for('document_viewer', doc_id=d.id) }}">{{ d.doc_name }}</a></td>
+          <td class="meta">{{ d.page_count }} pages · {{ d.processing_status }}</td></tr>{% endfor %}
+        </tbody></table>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% else %}
+  <div class="card">
+    <p>Run <strong>Analyze Case</strong> (button above) to generate a review from the case's real documents.</p>
+  </div>
+  {% endif %}
+
+{% elif tab == 'timeline' %}
+  <div class="card">
+    <h3>Case Timeline</h3>
+    <p class="meta">Dates and events extracted from the case's real documents. Run <em>Analyze Case</em> to refresh.</p>
+    {% if events %}
+      <table class="data">
+        <thead><tr><th>Date</th><th>Event</th><th>Source</th></tr></thead>
+        <tbody>
+        {% for e in events %}
+          <tr>
+            <td class="mono">{{ e.event_date }}</td>
+            <td>{{ e.description }}</td>
+            <td class="meta"><a href="{{ url_for('document_viewer', doc_id=e.document_id, page=e.page_number) }}">{{ e.doc_name }} — Page {{ e.page_number }}</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No dated events established by the uploaded documents yet. If a date/event cannot be established, it is not invented.</p>
+    {% endif %}
+  </div>
+
+{% elif tab == 'contradictions' %}
+  <div class="card">
+    <h3>Contradictions</h3>
+    <p class="meta">Conflicting statements across the case's documents. The system never arbitrarily decides which is correct.</p>
+    {% if contradictions %}
+      {% for c in contradictions %}
+      <div class="claim-item">
+        <p><span class="badge badge-contradicted">Contradiction Detected</span> <span class="meta">topic: {{ c.topic }}</span></p>
+        <div class="evidence-box"><strong>Claim A:</strong> {{ c.claim_a }}<div class="src">{{ c.doc_a }} — Page {{ c.page_a }}</div></div>
+        <div class="evidence-box"><strong>Claim B:</strong> {{ c.claim_b }}<div class="src">{{ c.doc_b }} — Page {{ c.page_b }}</div></div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p>No contradictions detected in this case.</p>
+    {% endif %}
+  </div>
+
+{% elif tab == 'missing' %}
+  <div class="card">
+    <h3>Missing Information</h3>
+    <p class="meta">Evidence gaps derived from what the documents reference but do not establish.</p>
+    {% if missing %}
+      <table class="data">
+        <thead><tr><th>Missing Item</th><th>Why Required</th><th>Priority</th><th>Recommended Action</th></tr></thead>
+        <tbody>
+        {% for m in missing %}
+          <tr><td><strong>{{ m.item }}</strong><div class="meta">{{ m.related_claim[:120] if m.related_claim }}</div></td>
+              <td>{{ m.reason }}</td>
+              <td><span class="badge badge-{{ 'review' if m.priority=='High' else 'neutral' }}">{{ m.priority }}</span></td>
+              <td>{{ m.recommended_action }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No missing-information items identified. Run <em>Analyze Case</em> to refresh.</p>
+    {% endif %}
+  </div>
+
+{% elif tab == 'research' %}
+  <div class="card">
+    <h3>Legal Research</h3>
+    <p>Open the research workspace: <a class="btn btn-sm" href="{{ url_for('research_page', case_id=case.id) }}">Legal Research →</a></p>
+  </div>
+
+{% elif tab == 'drafting' %}
+  <div class="card">
+    <h3>Legal Drafting</h3>
+    <p>Open the drafting workspace: <a class="btn btn-sm" href="{{ url_for('drafting_page', case_id=case.id) }}">Legal Drafting →</a></p>
+  </div>
+
+{% elif tab == 'chat' %}
+  <div class="card">
+    <h3>Evidence Q&amp;A (Grounded RAG)</h3>
+    <p class="meta">Answers come only from this case's uploaded documents. When evidence is insufficient, the system refuses rather than guess.
+    {% if not llm_configured %} AI reasoning service is not configured; extractive answers from real evidence are used instead.{% endif %}</p>
+    {% if current_user.role in ['admin','analyst','law_enforcement','government'] %}
+    <form method="post" action="{{ url_for('ask_case', case_id=case.id) }}">
+      <input type="text" name="question" placeholder="e.g. What payment amount is mentioned in the agreement?" required style="margin-bottom:.5rem;">
+      <button type="submit" class="btn">Ask</button>
+    </form>
+    {% endif %}
+  </div>
+  {% for m in messages if messages %}
+    {% if m.role == 'user' %}
+      <div class="claim-item" style="background:var(--accent-soft);">
+        <strong>You asked:</strong> {{ m.content }}
+      </div>
+    {% else %}
+      {% set meta = m.meta | tojson_base64_safe if false else None %}
+      <div class="claim-item">
+        {% set m_json = m.meta | default('{}') %}
+        {% if m_json and 'refusal&quot;: true' in m_json %}
+        <p><span class="badge badge-insufficient">Insufficient Evidence</span></p>
+        <p>{{ m.content }}</p>
+        {% elif m_json and 'CONTRADICTED' in m_json %}
+        <p><span class="badge badge-contradicted">Contradicted</span></p>
+        <p>{{ m.content }}</p>
+        {% elif m_json and '"status": "VERIFIED"' in m_json %}
+        <p><span class="badge badge-verified">Verified</span></p>
+        <p>{{ m.content }}</p>
+        {% elif m_json and 'PARTIALLY' in m_json %}
+        <p><span class="badge badge-partially">Partially Supported</span></p>
+        <p>{{ m.content }}</p>
+        {% else %}
+        <p>{{ m.content }}</p>
+        {% endif %}
+        <p class="meta">{{ m.created_at[:16].replace('T',' ') }} ·
+          <a href="{{ url_for('evidence_center', case_id=case.id) }}">inspect claims &amp; citations →</a></p>
+      </div>
+    {% endif %}
+  {% endfor %}
+  {% if messages %}
+  <div class="card"><h3>Verified claims from chat</h3>
+    {% for c in claims %}
+      <div class="claim-item">
+        <div class="claim-head"><span>{{ c.text }}</span>
+          <span class="badge badge-{{ {'VERIFIED':'verified','PARTIALLY SUPPORTED':'partially','UNSUPPORTED':'unsupported','CONTRADICTED':'contradicted'}.get(c.status,'insufficient') }}">{{ c.status }}</span></div>
+        {% if c.doc_name %}
+        <div class="evidence-box">{{ c.excerpt }}<div class="src">{{ c.doc_name }} — Page {{ c.page_number }}{% if c.section %} — {{ c.section }}{% endif %}</div></div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+{% elif tab == 'report' %}
+  <div class="card">
+    <h3>Case Report</h3>
+    <p>Open the structured, print-friendly report: <a class="btn btn-sm" href="{{ url_for('case_report', case_id=case.id) }}">Generate Report →</a></p>
+  </div>
+{% endif %}
+{% endblock %}
